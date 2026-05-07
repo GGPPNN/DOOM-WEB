@@ -1,19 +1,16 @@
-# 🎮 DOOM-WEB
+# 🎮 DOOM-WEB - Versión WAD Original
 
-Un juego DOOM completamente funcional para tu navegador web, construido con **JavaScript puro** sin dependencias externas.
+Juega el **DOOM 1 original** directamente en tu navegador usando el archivo WAD auténtico.
 
-## 📋 Descripción
+## 📦 Características
 
-DOOM-WEB es una implementación del clásico juego DOOM en HTML5 Canvas utilizando la técnica original de **raycasting 3D**. Explora laberintos en primera persona en tu navegador.
-
-## 🚀 Características
-
-- ✅ **Raycasting 3D Real**: Usa la misma técnica que el DOOM original de 1993
-- ✅ **Movimiento Fluido**: Control total con WASD + Ratón
-- ✅ **Mini-mapa en Vivo**: Visualiza el mapa mientras juegas
+- ✅ **Archivo WAD Original**: Usa `DOOM - copia.WAD` del DOOM 1 clásico
+- ✅ **Motor Parser WAD**: Lee e interpreta la estructura del archivo WAD
+- ✅ **Raycasting 3D**: Renderizado gráfico estilo DOOM original
+- ✅ **Control Total**: WASD + Ratón para movimiento fluido
+- ✅ **Mini-mapa Integrado**: Visualiza el mapa en tiempo real
+- ✅ **Menú Principal**: Interfaz intuitiva para iniciar el juego
 - ✅ **Sin Dependencias**: 100% JavaScript puro
-- ✅ **Optimizado**: 60 FPS en navegadores modernos
-- ✅ **Responsive**: Funciona en desktop y tablets
 
 ## 🎮 Controles
 
@@ -23,204 +20,161 @@ DOOM-WEB es una implementación del clásico juego DOOM en HTML5 Canvas utilizan
 | **S** | Retroceder |
 | **A** | Strafear izquierda |
 | **D** | Strafear derecha |
-| **← →** | Girar (alternativa) |
-| **Ratón** | Girar (mueve el ratón) |
+| **← →** | Girar alternativa |
+| **Ratón** | Girar (requiere clic previo) |
+| **ESC** | Salir al menú |
 
-> **Nota**: Haz clic en el juego primero para activar el control del ratón.
-
-## 📦 Archivos
+## 📁 Archivos
 
 ```
 DOOM-WEB/
-├── index.html      # Página principal (interfaz y canvas)
-├── game.js         # Motor del juego (raycasting 3D)
-└── README.md       # Este archivo
+├── index.html           # Interfaz y menú principal
+├── doom-engine.js       # Motor WAD y raycasting
+├── game.js              # Motor alternativo
+├── DOOM - copia.WAD     # Archivo WAD original
+└── README.md            # Esta documentación
 ```
 
-## 🌐 Cómo Usar
+## 🚀 Cómo Jugar
 
-### Opción 1: GitHub Pages (Recomendado)
-1. Ve a Settings de tu repositorio
-2. Busca "GitHub Pages"
-3. Activa Pages en la rama `main`
-4. Accede a: `https://GGPPNN.github.io/DOOM-WEB/`
+### En GitHub Pages
+```
+https://ggppnn.github.io/DOOM-WEB/
+```
 
-### Opción 2: Localmente
+### Localmente
 1. Clona el repositorio:
    ```bash
    git clone https://github.com/GGPPNN/DOOM-WEB.git
-   cd DOOM-WEB
    ```
 2. Abre `index.html` en tu navegador
+3. Haz clic en "JUGAR"
 
-### Opción 3: Live Server (VS Code)
-1. Instala la extensión "Live Server"
-2. Click derecho en `index.html` → "Open with Live Server"
+## 🔧 Cómo Funciona
 
-## 🛠️ Estructura del Código
+### Estructura WAD
 
-### game.js - Motor Principal
+El archivo WAD contiene:
+- **Header**: Identificador (IWAD/PWAD) + información de lumps
+- **Lumps**: Bloques de datos (mapas, sprites, texturas, sonidos)
+- **Directory**: Índice de todos los lumps
 
-```javascript
-// Clase principal del motor DOOM
-class DoomEngine {
-    constructor(canvasId)      // Inicializa el motor
-    generateMap()              // Crea un mapa procedural
-    setupEventListeners()      // Configura controles
-    update()                   // Actualiza posición del jugador
-    render()                   // Dibuja los gráficos
-    renderRaycast()           // Renderiza la vista 3D
-    castRay(angle)            // Calcula intersección de rayo
-    renderMinimap()           // Dibuja el minimapa
-    gameLoop()                // Loop principal del juego
-}
+```
+IWAD Header (4 bytes)
+├── Número de lumps (4 bytes)
+├── Offset del directorio (4 bytes)
+└── Directorio
+    └── [Lump entries...]
 ```
 
-## 🗺️ Sistema de Mapas
+### Motor de Raycasting
 
-El mapa es una matriz 2D donde:
-- **1** = Pared
-- **0** = Espacio vacío
+1. **Lanzar rayos**: Desde la posición del jugador en múltiples ángulos
+2. **Detectar colisiones**: Encontrar intersecciones con paredes
+3. **Calcular distancia**: Distancia desde el jugador hasta la pared
+4. **Renderizar**: Dibujar muros con altura proporcional a la distancia
 
 ```javascript
-this.map = [
-    [1,1,1,1,1,1],
-    [1,0,0,0,0,1],
-    [1,0,1,0,0,1],
-    [1,0,0,0,0,1],
-    [1,0,0,0,0,1],
-    [1,1,1,1,1,1]
-];
+const distance = castRay(angle);
+const wallHeight = (canvasHeight * 50) / distance;
+drawWall(x, y, width, wallHeight, color);
 ```
-
-### Cómo Editar el Mapa
-
-1. Abre `game.js`
-2. Busca la función `generateMap()`
-3. Modifica el array según desees:
-   ```javascript
-   generateMap() {
-       return [
-           [1,1,1,1,1,1,1,1,1,1],
-           [1,0,0,0,0,0,0,0,0,1],
-           // ... más filas
-       ];
-   }
-   ```
 
 ## 🎨 Personalización
 
-### Cambiar el Color de las Paredes
+### Cambiar Colores de Paredes
 
-En `game.js`, busca `renderRaycast()`:
+En `doom-engine.js`, busca `renderRaycast()`:
+
 ```javascript
-// Cambiar de rojo (#ff0000) a otro color
-this.ctx.fillStyle = `rgb(${brightness * 0.8}, 0, 0)`;
-// A:
-this.ctx.fillStyle = `rgb(0, ${brightness * 0.8}, 0)`; // Verde
+// Rojo actual
+this.ctx.fillStyle = `rgb(${hue}, 0, 0)`;
+
+// Cambiar a verde
+this.ctx.fillStyle = `rgb(0, ${hue}, 0)`;
+
+// O azul
+this.ctx.fillStyle = `rgb(0, 0, ${hue})`;
 ```
 
-### Ajustar la Velocidad del Jugador
+### Ajustar Dificultad
 
-En `update()`:
+Modifica la velocidad del jugador:
 ```javascript
 const moveSpeed = 2;  // Aumenta para más velocidad
 ```
 
-### Cambiar el Campo de Visión
+### Campo de Visión
 
 En el constructor:
 ```javascript
-fov: 60,  // Grados de FOV (aumenta para ver más)
+fov: 90,  // Grados de FOV
 ```
-
-## 🔧 Requisitos
-
-- Navegador moderno con soporte para:
-  - HTML5 Canvas
-  - ES6 JavaScript
-  - Pointer Lock API (para control de ratón)
-
-### Navegadores Soportados
-- ✅ Chrome/Chromium 77+
-- ✅ Firefox 50+
-- ✅ Safari 13+
-- ✅ Edge 79+
-
-## 🚧 Mejoras Futuras
-
-- [ ] Agregación de enemigos (Imp, Demon, etc.)
-- [ ] Sistema de armas
-- [ ] Munición y salud
-- [ ] Múltiples niveles
-- [ ] Texturas de paredes
-- [ ] Sonidos
-- [ ] Efectos de partículas
-- [ ] Puntuación y ranking
 
 ## 🐛 Solución de Problemas
 
 ### El juego no carga
-- Verifica que ambos archivos (`index.html` y `game.js`) estén en el mismo directorio
-- Abre la consola (F12) y busca errores
+- ✅ Verifica que `DOOM - copia.WAD` esté en el repositorio
+- ✅ Asegúrate que todos los archivos `.js` estén presentes
+- ✅ Abre la consola (F12) para ver errores
 
-### El ratón no funciona
-- Haz clic en el canvas primero
-- Verifica que el navegador tenga permisos de Pointer Lock
+### El WAD no se carga
+- ✅ El navegador debe permitir CORS
+- ✅ Si usas localhost, algunos navegadores pueden bloquear
+- ✅ Usa Live Server o GitHub Pages
 
 ### Bajo rendimiento
-- Reduce el número de rayos en `renderRaycast()` (línea con `numRays`)
-- Cierra otras pestañas del navegador
+- ✅ Reduce `numRays` en `renderRaycast()`
+- ✅ Cierra otras pestañas
+- ✅ Actualiza tu navegador
 
-## 📚 Referencias Técnicas
+## 📊 Especificaciones Técnicas
 
-### Raycasting 3D
-El raycasting es una técnica de renderizado que:
-1. Lanza rayos desde la posición del jugador
-2. Detecta colisiones con paredes
-3. Calcula la distancia
-4. Dibuja muros según la distancia (efecto de perspectiva)
+### Motor de Raycasting
+- **Rayos**: 160 por frame
+- **FOV**: 90 grados
+- **Velocidad**: 60 FPS
+- **Resolución**: 100% del ancho de ventana
 
-### Fórmulas Matemáticas Utilizadas
+### Formato WAD
+- **Tipo**: IWAD (Doom 1 Original)
+- **Tamaño**: ~11 MB (completo con recursos)
+- **Estructura**: Header + Lumps + Directory
 
-```
-Conversión de ángulos: radianes = ángulos * π / 180
-Posición del rayo: x = jugador.x + cos(ángulo) * distancia
-                   y = jugador.y + sen(ángulo) * distancia
-Altura de muro: altura = (canvas.height * 50) / distancia
-```
+## 🌐 Navegadores Soportados
 
-## 📖 Tutoriales Relacionados
+| Navegador | Versión | Estado |
+|-----------|---------|--------|
+| Chrome | 77+ | ✅ Soportado |
+| Firefox | 50+ | ✅ Soportado |
+| Safari | 13+ | ✅ Soportado |
+| Edge | 79+ | ✅ Soportado |
 
-- [Raycasting en Lode's Computer Graphics Tutorial](https://lodev.org/cgtutor/raycasting.html)
-- [Making Games with Raycast](https://en.wikipedia.org/wiki/Raycasting)
-- [DOOM Engine Architecture](https://www.doomworld.com/)
+## 📚 Referencias
 
-## 👨‍💻 Contribuciones
+- [Lode's Computer Graphics Tutorial - Raycasting](https://lodev.org/cgtutor/raycasting.html)
+- [Doom Wiki - WAD Format](https://doomwiki.org/wiki/WAD)
+- [Doom Source Code](https://github.com/id-Software/DOOM)
 
-¿Quieres mejorar DOOM-WEB? 
-1. Fork el repositorio
-2. Crea una rama (`git checkout -b feature/nueva-caracteristica`)
-3. Commit los cambios (`git commit -m 'Agrega nueva característica'`)
-4. Push a la rama (`git push origin feature/nueva-caracteristica`)
-5. Abre un Pull Request
+## 👨‍💻 Autor
+
+- **Usuario**: GGPPNN
+- **Proyecto**: DOOM-WEB
+- **GitHub**: [@GGPPNN](https://github.com/GGPPNN)
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
+Este proyecto es una recreación educativa del DOOM original.
+- Código: MIT
+- Recursos WAD: Bajo licencia de id Software/Bethesda
 
 ## 🎓 Créditos
 
-- Concepto original basado en **DOOM (1993)** por id Software
-- Técnica de raycasting documentada por [Lode Vandevelde](https://lodev.org/)
-- Desarrollado en 2026 para aprender gráficos 3D en web
-
-## 📞 Contacto
-
-- **Autor**: GGPPNN
-- **GitHub**: [@GGPPNN](https://github.com/GGPPNN)
-- **Repositorio**: [DOOM-WEB](https://github.com/GGPPNN/DOOM-WEB)
+- **DOOM Original**: id Software (1993)
+- **WAD Engine**: Comunidad Doom
+- **Raycasting Tutorial**: Lode Vandevelde
+- **Desarrollo Web**: GGPPNN (2026)
 
 ---
 
-**¿Disfrutas del juego? Deja una ⭐ en el repositorio!**
+**¿Te diviertes? Deja una ⭐ en el repositorio!**
