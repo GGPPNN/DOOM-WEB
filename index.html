@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOOM-WEB 🎮</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #ff0000;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h1 {
+            text-shadow: 0 0 10px #ff0000;
+            font-size: 2.5em;
+            letter-spacing: 3px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { color: #ff0000; }
+            50% { color: #cc0000; }
+        }
+
+        #canvas {
+            border: 3px solid #ff0000;
+            background-color: #1a1a1a;
+            box-shadow: 0 0 20px #ff0000;
+            cursor: none;
+        }
+
+        .controls {
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 2px solid #ff0000;
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 800px;
+        }
+
+        .controls h2 {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .control-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .control-item {
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-left: 3px solid #ff0000;
+            padding-left: 10px;
+        }
+
+        .control-item strong {
+            color: #ffff00;
+        }
+
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .info {
+            text-align: center;
+            font-size: 0.85em;
+            color: #ffff00;
+            max-width: 800px;
+        }
+
+        .info p {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            #canvas {
+                max-width: 100vw;
+                max-height: 70vh;
+            }
+
+            .control-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 DOOM-WEB 🎮</h1>
+        <canvas id="canvas" width="800" height="600"></canvas>
+        <div id="loading">INICIANDO DOOM...</div>
+        
+        <div class="controls">
+            <h2>⌨️ CONTROLES</h2>
+            <div class="control-group">
+                <div class="control-item"><strong>W</strong> - Avanzar</div>
+                <div class="control-item"><strong>S</strong> - Retroceder</div>
+                <div class="control-item"><strong>A</strong> - Strafear izquierda</div>
+                <div class="control-item"><strong>D</strong> - Strafear derecha</div>
+                <div class="control-item"><strong>← →</strong> - Girar (alternativa)</div>
+                <div class="control-item"><strong>Ratón</strong> - Girar (movimiento)</div>
+            </div>
+        </div>
+
+        <div class="info">
+            <p>💡 Haz clic en el juego para activar el ratón</p>
+            <p>🗺️ Observa el minimapa en la esquina superior izquierda</p>
+            <p>⚡ FPS: Depende de tu navegador</p>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
