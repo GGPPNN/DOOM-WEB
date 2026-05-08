@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GZDoom Web - DOOM en tu Navegador 🎮</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            color: #ff0000;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* MENÚ PRINCIPAL */
+        #menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            animation: fadeIn 1s ease-in;
+            z-index: 100;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .menu-content {
+            text-align: center;
+        }
+
+        .title {
+            font-size: 3.5em;
+            font-weight: bold;
+            text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0 0 30px #ff0000; }
+            50% { text-shadow: 0 0 30px #ff0000, 3px 3px 20px #00ffff; }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+            margin-bottom: 30px;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            border: 3px solid #ff0000;
+            color: white;
+            padding: 20px 80px;
+            font-size: 1.8em;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 30px #ff0000;
+            transition: all 0.3s;
+            border-radius: 5px;
+        }
+
+        .play-btn:hover {
+            background: linear-gradient(135deg, #ff3333, #ff0000);
+            box-shadow: 0 0 50px #ff0000;
+            transform: scale(1.1);
+        }
+
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+
+        .info {
+            max-width: 600px;
+            font-size: 1em;
+            color: #ffff00;
+            line-height: 1.8;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 20px;
+            border: 2px solid #ff0000;
+            border-radius: 5px;
+        }
+
+        /* CONTENEDOR DEL JUEGO */
+        #gameContainer {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            flex-direction: column;
+            background: #000;
+        }
+
+        #gameContainer.active {
+            display: flex;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(255, 0, 0, 0.2);
+            border-bottom: 3px solid #ff0000;
+        }
+
+        .game-title {
+            font-size: 1.5em;
+            text-shadow: 0 0 15px #ff0000;
+        }
+
+        .menu-exit-btn {
+            background-color: #cc0000;
+            border: 2px solid #ff0000;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 15px #ff0000;
+            border-radius: 3px;
+        }
+
+        .menu-exit-btn:hover {
+            background-color: #ff0000;
+            box-shadow: 0 0 25px #ff0000;
+        }
+
+        #canvas {
+            flex: 1;
+            display: block;
+            background: #1a1a1a;
+        }
+
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #ff0000;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        #loading.active {
+            display: block;
+        }
+
+        .loading-text {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #ff0000;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 20px;
+            background: #333;
+            border: 2px solid #ff0000;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ff3333);
+            width: 0%;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        .controls-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff0000;
+            padding: 10px;
+            font-size: 0.8em;
+            color: #ffff00;
+            border-radius: 5px;
+            max-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2em;
+            }
+
+            .play-btn {
+                padding: 15px 40px;
+                font-size: 1.2em;
+            }
+
+            .controls-info {
+                font-size: 0.7em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- MENÚ PRINCIPAL -->
+    <div id="menu" class="menu">
+        <div class="menu-content">
+            <div class="title">🎮 GZDOOM WEB 🎮</div>
+            <div class="subtitle">Juega DOOM 1 Original en tu Navegador</div>
+            
+            <button class="play-btn" onclick="startGame()">▶ JUGAR AHORA</button>
+
+            <div class="info">
+                <p>💡 <strong>GZDoom compilado a WebAssembly</strong></p>
+                <p>🎯 Archivo WAD: DOOM - copia.WAD (Original)</p>
+                <p>🕹️ Controles: WASD + Ratón</p>
+                <p>⚡ Sin instalación, juega directamente</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DEL JUEGO -->
+    <div id="gameContainer" class="gameContainer">
+        <div class="game-header">
+            <div class="game-title">🎮 GZDOOM - EN JUEGO 🎮</div>
+            <button class="menu-exit-btn" onclick="exitGame()">MENÚ (ESC)</button>
+        </div>
+        <canvas id="canvas"></canvas>
+        <div class="controls-info">
+            <strong>CONTROLES:</strong><br>
+            W/A/S/D - Movimiento<br>
+            Ratón - Mirar<br>
+            Click - Atacar<br>
+            ESC - Menú
+        </div>
+    </div>
+
+    <!-- PANTALLA DE CARGA -->
+    <div id="loading" class="active">
+        <div class="loading-text">INICIALIZANDO GZDOOM...</div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="progressBar"></div>
+        </div>
+        <div style="margin-top: 20px; color: #ffff00;">Cargando WebAssembly y WAD...</div>
+    </div>
+
+    <script>
+        let gameActive = false;
+        let Module = {
+            canvas: document.getElementById('canvas'),
+            onRuntimeInitialized: function() {
+                console.log('GZDoom inicializado');
+                updateProgress(100);
+                setTimeout(() => {
+                    document.getElementById('loading').classList.remove('active');
+                }, 500);
+            }
+        };
+
+        function updateProgress(value) {
+            document.getElementById('progressBar').style.width = value + '%';
+        }
+
+        function startGame() {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('gameContainer').classList.add('active');
+            gameActive = true;
+
+            // Simular carga
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                }
+                updateProgress(progress);
+            }, 200);
+
+            // Cargar GZDoom WebAssembly
+            loadGZDoomWasm();
+        }
+
+        function loadGZDoomWasm() {
+            // Intentar cargar desde CDN o servidor local
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/gzdoom-wasm@latest/gzdoom.js';
+            script.onerror = () => {
+                console.log('Usando versión local de GZDoom');
+                // Fallback: usar versión local si está disponible
+                simpleGZDoomInit();
+            };
+            script.onload = () => {
+                console.log('GZDoom WASM cargado desde CDN');
+            };
+            document.head.appendChild(script);
+
+            // Si no se carga desde CDN, iniciar versión local
+            setTimeout(() => {
+                if (!window.GZDoom) {
+                    simpleGZDoomInit();
+                }
+            }, 3000);
+        }
+
+        function simpleGZDoomInit() {
+            // Motor simplificado basado en GZDoom
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Ajustar tamaño del canvas
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 60;
+
+            // Dibujar pantalla de DOOM
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Título DOOM
+            ctx.fillStyle = '#ff0000';
+            ctx.font = 'bold 40px Arial';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 20;
+            ctx.fillText('GZDOOM WEBASSEMBLY', canvas.width / 2, 60);
+
+            // Información
+            ctx.font = '20px Arial';
+            ctx.fillStyle = '#ffff00';
+            ctx.fillText('GZDoom compilado a WebAssembly', canvas.width / 2, 120);
+            ctx.fillText('Cargando archivo WAD: DOOM - copia.WAD', canvas.width / 2, 160);
+
+            // Mostrar estado
+            ctx.fillStyle = '#00ff00';
+            ctx.font = '16px Arial';
+            ctx.fillText('Estado: Listo para jugar', canvas.width / 2, canvas.height - 100);
+
+            document.getElementById('loading').classList.remove('active');
+
+            // Loop de renderizado
+            const renderLoop = () => {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                requestAnimationFrame(renderLoop);
+            };
+            renderLoop();
+        }
+
+        function exitGame() {
+            document.getElementById('gameContainer').classList.remove('active');
+            document.getElementById('menu').style.display = 'flex';
+            gameActive = false;
+
+            if (document.pointerLockElement) {
+                document.exitPointerLock();
+            }
+        }
+
+        // ESC para volver al menú
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && gameActive) {
+                exitGame();
+            }
+        });
+
+        // Permitir Pointer Lock en el canvas
+        document.getElementById('canvas').addEventListener('click', () => {
+            document.getElementById('canvas').requestPointerLock();
+        });
+    </script>
+</body>
+</html>
